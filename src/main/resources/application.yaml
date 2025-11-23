@@ -7,3 +7,7 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: true
+security:
+  jwt:
+    secret: ef49705ba523370d9e2e1f633080dd4f
+    expiration: 86400000 # 1 dia em milliseconds

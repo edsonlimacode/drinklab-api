@@ -5,6 +5,7 @@ import com.drinklab.api.exceptions.customExceptions.BadRequestException;
 import com.drinklab.domain.model.User;
 import com.drinklab.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,8 @@ public class UserService {
     @Autowired
     private GroupService groupService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public void create(User user) {
 
@@ -28,6 +31,8 @@ public class UserService {
         if (userExists) {
             throw new BadRequestException("Já existe um usuário cadastrado com o email: " + user.getEmail());
         }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         this.userRepository.save(user);
     }
