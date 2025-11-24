@@ -1,12 +1,16 @@
 package com.drinklab.domain.repository;
 
-import com.drinklab.domain.model.User;
+import com.drinklab.domain.model.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+import java.util.Optional;
 
-    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.email = :email")
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
+
+    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM UserEntity u WHERE u.email = :email")
     boolean userExistsByEmail(String email);
+
+    Optional<UserEntity> findByEmail(String email);
 
 }
