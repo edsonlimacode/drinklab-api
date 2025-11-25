@@ -5,6 +5,7 @@ import com.drinklab.api.exceptions.customExceptions.BadRequestException;
 import com.drinklab.api.exceptions.customExceptions.NotFoundException;
 import com.drinklab.domain.model.UserEntity;
 import com.drinklab.domain.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -38,13 +39,15 @@ public class UserService implements UserDetailsService {
         this.userRepository.save(user);
     }
 
+    @Transactional
     public UserEntity update(Long id, UserEntity user) {
 
         user.setId(id);
 
         this.findById(id);
 
-        return this.userRepository.save(user);
+        return user;
+//        return this.userRepository.save(user);
 
     }
 

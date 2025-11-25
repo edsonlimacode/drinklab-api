@@ -4,7 +4,6 @@ package com.drinklab.api.exceptions;
 import com.drinklab.api.exceptions.customExceptions.BadRequestException;
 import com.drinklab.api.exceptions.customExceptions.NotFoundException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 
 @ControllerAdvice
 @Slf4j
-public class GlobalHandleExceptions extends ResponseEntityBase {
+public class GlobalHandleExceptions extends ResponseEntityExceptionHandler {
 
     @Autowired
     private MessageSource messageSource;
