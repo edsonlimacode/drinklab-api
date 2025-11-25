@@ -20,5 +20,4 @@ public class UserResponseDto {
 
     private Boolean active = true;
 
-    private GroupResponseDto group;
 }

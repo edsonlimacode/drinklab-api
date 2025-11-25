@@ -6,17 +6,13 @@ import com.drinklab.api.exceptions.customExceptions.NotFoundException;
 import com.drinklab.domain.model.UserEntity;
 import com.drinklab.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,6 +38,16 @@ public class UserService implements UserDetailsService {
         this.userRepository.save(user);
     }
 
+    public UserEntity update(Long id, UserEntity user) {
+
+        user.setId(id);
+
+        this.findById(id);
+
+        return this.userRepository.save(user);
+
+    }
+
     public boolean getUserByEmail(String email) {
         return userRepository.userExistsByEmail(email);
     }
@@ -50,14 +56,18 @@ public class UserService implements UserDetailsService {
         return this.userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(String.format("Recurso com email %s, não foi encontrado", email)));
     }
 
+    public UserEntity findById(Long id) {
+        return this.userRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Recurso com id %d, não foi encontrado", id)));
+    }
+
     public List<UserEntity> findAll() {
         return userRepository.findAll();
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        UserEntity user = this.findByEmail(username);
+        UserEntity user = this.findByEmail(email);
 
         return new User(user.getEmail(), user.getPassword(), Collections.singleton(new SimpleGrantedAuthority(user.getGroup().getName())));
     }

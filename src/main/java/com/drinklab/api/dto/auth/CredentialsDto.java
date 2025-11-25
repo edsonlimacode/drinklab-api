@@ -11,7 +11,7 @@ import lombok.Setter;
 public class CredentialsDto {
 
     @NotBlank
-    private String userName;
+    private String email;
 
     @NotNull
     private String password;

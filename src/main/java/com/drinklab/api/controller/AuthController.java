@@ -17,7 +17,7 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/signIn")
+    @PostMapping("/login")
     public JwtTokenDto signIn(@RequestBody CredentialsDto credentialsDto) {
         return this.authService.signIn(credentialsDto);
     }

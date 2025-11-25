@@ -33,7 +33,7 @@ public class AuthService {
 
         try {
             Authentication authenticate = this.authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(credentialsDto.getUserName(), credentialsDto.getPassword()));
+                    new UsernamePasswordAuthenticationToken(credentialsDto.getEmail(), credentialsDto.getPassword()));
 
             List<String> authorities = authenticate.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
 
@@ -43,7 +43,7 @@ public class AuthService {
 
             String token = jwtProvider.generateAccessToken(userClaimDto, authorities);
 
-            return new JwtTokenDto(credentialsDto.getUserName(), token, "");
+            return new JwtTokenDto(credentialsDto.getEmail(), token, "");
 
         } catch (
                 BadCredentialsException e) {

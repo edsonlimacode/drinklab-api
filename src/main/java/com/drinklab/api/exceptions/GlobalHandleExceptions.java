@@ -14,10 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -27,7 +29,7 @@ import java.util.stream.Collectors;
 
 @ControllerAdvice
 @Slf4j
-public class GlobalHandleExceptions extends ResponseEntityExceptionHandler {
+public class GlobalHandleExceptions extends ResponseEntityBase {
 
     @Autowired
     private MessageSource messageSource;
@@ -54,6 +56,31 @@ public class GlobalHandleExceptions extends ResponseEntityExceptionHandler {
 
         return ResponseEntity.badRequest().body(problemDetails);
 
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<?> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+
+        String detail = String.format("O parâmetro %s, recebeu o valor '%s' que é inválido, informe um tipo compatível requerido '%s'",
+                ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName());
+
+        ProblemDetails problemDetails = getProblemDetails(badRequest, detail).build();
+
+        return ResponseEntity.badRequest().body(problemDetails);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+        HttpStatus notFound = HttpStatus.METHOD_NOT_ALLOWED;
+
+        String errorMessage = String.format("Nenhuma uri corresponde ao metodo %s, para este recurso", ex.getMethod());
+
+        ProblemDetails problemDetails = getProblemDetails(notFound, errorMessage)
+                .build();
+
+        return ResponseEntity.status(notFound).body(problemDetails);
     }
 
     @ExceptionHandler(NotFoundException.class)

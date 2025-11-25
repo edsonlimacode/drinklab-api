@@ -57,15 +57,13 @@ public class JwtTokenProvider {
 
     public DecodedJWT decodedJWT(String token) {
 
-        try {
+
             Algorithm algorithm = getAlgorithm();
 
             JWTVerifier verifier = JWT.require(algorithm).build();
 
             return verifier.verify(token);
-        } catch (Exception e) {
-            throw new BadRequestException("token iválido");
-        }
+
     }
 
     private Algorithm getAlgorithm() {

@@ -2,6 +2,7 @@ package com.drinklab.api.controller;
 
 
 import com.drinklab.api.dto.user.UserRequestDto;
+import com.drinklab.api.dto.user.UserRequestUpdateDto;
 import com.drinklab.api.dto.user.UserResponseDto;
 import com.drinklab.api.mapper.UserMapper;
 import com.drinklab.domain.model.UserEntity;
@@ -46,7 +47,22 @@ public class UserController {
 
         List<UserResponseDto> userListDto = this.userMapper.toListDto(users);
 
-        return ResponseEntity.ok().body(userListDto);
+        return ResponseEntity.ok(userListDto);
+
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDto> update(@PathVariable Long id, @RequestBody UserRequestUpdateDto userRequestUpdateDto) {
+
+        UserEntity user = this.userService.findById(id);
+
+        this.userMapper.copyUserProperties(userRequestUpdateDto, user);
+
+        UserEntity userUpdated = this.userService.update(id, user);
+
+        UserResponseDto userResponseDto = this.userMapper.toDto(userUpdated);
+
+        return ResponseEntity.ok(userResponseDto);
 
     }
 }

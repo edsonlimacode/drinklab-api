@@ -30,7 +30,7 @@ public class SecurityConfig {
                         authorize
                                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
                                 .requestMatchers(
-                                        "/auth/signIn",
+                                        "/auth/login",
                                         "/teste",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**")
