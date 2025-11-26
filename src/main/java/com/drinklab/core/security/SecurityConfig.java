@@ -25,7 +25,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .addFilterBefore(jwtDoFilter, UsernamePasswordAuthenticationFilter.class)//Executa o filtro, antes de tentar autenticar.
+                .addFilterBefore(jwtDoFilter, UsernamePasswordAuthenticationFilter.class)//Executa o filtro, antes de tentar verificar se esta autenticado.
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers(HttpMethod.POST, "/users").permitAll()

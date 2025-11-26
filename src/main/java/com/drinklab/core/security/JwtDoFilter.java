@@ -17,7 +17,8 @@ import java.io.IOException;
 @Component
 public class JwtDoFilter extends OncePerRequestFilter {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper mapper;
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
