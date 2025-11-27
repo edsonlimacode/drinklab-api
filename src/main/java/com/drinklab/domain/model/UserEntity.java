@@ -1,8 +1,11 @@
 package com.drinklab.domain.model;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.OffsetDateTime;
 
 @Data
 @Entity
@@ -27,4 +30,13 @@ public class UserEntity {
 
     @ManyToOne
     private Group group;
+
+    @CreationTimestamp
+    @Column(name = "created_at")
+    private OffsetDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
+
 }

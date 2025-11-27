@@ -1,11 +1,12 @@
-package com.drinklab.api.dto.group;
+package com.drinklab.api.dto.category;
+
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class GroupRequestDto {
+public class CategoryResponseDto {
 
     private Long id;
     private String name;

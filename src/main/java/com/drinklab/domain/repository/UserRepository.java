@@ -1,7 +1,6 @@
 package com.drinklab.domain.repository;
 
 import com.drinklab.domain.model.UserEntity;
-import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
