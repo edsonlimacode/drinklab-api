@@ -21,8 +21,8 @@ CREATE TABLE users (
     email VARCHAR(150) UNIQUE NOT NULL,
     active BOOLEAN DEFAULT true,
     group_id BIGINT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
     FOREIGN KEY (group_id) REFERENCES groups(id)
 );
 
@@ -40,8 +40,8 @@ CREATE TABLE distributors (
     contact VARCHAR(20) UNIQUE NOT NULL,
     email VARCHAR(120) UNIQUE,
     active BOOLEAN DEFAULT true,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE distributor_users (
@@ -77,9 +77,8 @@ CREATE TABLE customers (
     document VARCHAR(20),
     contact VARCHAR(50),
     active BOOLEAN DEFAULT true,
-    active BOOLEAN DEFAULT true,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
     FOREIGN KEY (distributor_id) REFERENCES distributors(id)
 );
 
@@ -92,8 +91,8 @@ CREATE TABLE suppliers (
     email VARCHAR(120),
     distributor_id BIGINT NOT NULL,
     active BOOLEAN DEFAULT true,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
     FOREIGN KEY (distributor_id) REFERENCES distributors(id)
 );
 
@@ -107,8 +106,8 @@ CREATE TABLE products (
     active BOOLEAN DEFAULT true,
     category_id BIGINT NOT NULL,
     distributor_id BIGINT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
     FOREIGN KEY (distributor_id) REFERENCES distributors(id),
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
@@ -134,7 +133,7 @@ CREATE TABLE purchase_items (
     quantity INTEGER NOT NULL,
     cost_price DECIMAL(12,2) NOT NULL,
 
-    FOREIGN KEY (purchase_order_id) REFERENCES purchase_order(id),
+    FOREIGN KEY (purchase_order_id) REFERENCES purchase_orders(id),
     FOREIGN KEY (product_id) REFERENCES products(id),
     FOREIGN KEY (distributor_id) REFERENCES distributors(id)
 );
@@ -159,7 +158,7 @@ CREATE TABLE sale_items (
     product_id BIGINT NOT NULL,
     qty INTEGER NOT NULL,
     unit_price NUMERIC(14,2) NOT NULL,
-    foreign KEY (sale_order_id) REFERENCES sale_order(id),
+    foreign KEY (sale_order_id) REFERENCES sale_orders(id),
     FOREIGN KEY (product_id) REFERENCES products(id),
     FOREIGN KEY (customer_id) REFERENCES customers(id),
     FOREIGN KEY (distributor_id) REFERENCES distributors(id)
@@ -170,7 +169,7 @@ CREATE TABLE route_delivery (
     sale_order_id BIGINT NOT NULL,
     driver_name VARCHAR(50) NOT NULL,
     status BOOLEAN DEFAULT false,
-    FOREIGN KEY (sale_order_id)  REFERENCES sale_order(id)
+    FOREIGN KEY (sale_order_id)  REFERENCES sale_orders(id)
 );
 
 CREATE TABLE stocks (
@@ -193,8 +192,8 @@ CREATE TABLE stock_movements (
     qty NUMERIC(14,3) NOT NULL,
     type VARCHAR(10) NOT NULL,
     reference TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
     FOREIGN KEY (product_id)  REFERENCES products(id),
     FOREIGN KEY (distributor_id)  REFERENCES distributors(id)
 );
