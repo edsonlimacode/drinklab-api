@@ -3,6 +3,7 @@ package com.drinklab.api.controller;
 
 import com.drinklab.api.dto.distributor.DistributorRequestDto;
 import com.drinklab.api.mapper.DistributorMapper;
+import com.drinklab.core.security.CheckAuthority;
 import com.drinklab.domain.model.Distributor;
 import com.drinklab.domain.service.DistributorService;
 import jakarta.validation.Valid;
@@ -20,13 +21,13 @@ public class DistributorController {
     @Autowired
     private DistributorMapper mapper;
 
+    @CheckAuthority.MasterOrAdmin
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@Valid @RequestBody DistributorRequestDto distributorRequestDto){
+    public void create(@Valid @RequestBody DistributorRequestDto distributorRequestDto) {
 
         Distributor distributor = this.mapper.toEntity(distributorRequestDto);
 
         this.distributorService.create(distributor);
-
     }
 }

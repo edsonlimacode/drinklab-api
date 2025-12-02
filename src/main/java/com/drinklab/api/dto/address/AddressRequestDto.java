@@ -2,6 +2,7 @@ package com.drinklab.api.dto.address;
 
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +27,7 @@ public class AddressRequestDto {
     @NotBlank
     private String state;
 
+    @Size(min=8, max = 8)
     @NotBlank
     private String zipCode;
 
