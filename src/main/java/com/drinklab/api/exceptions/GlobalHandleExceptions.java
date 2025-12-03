@@ -80,8 +80,12 @@ public class GlobalHandleExceptions extends ResponseEntityExceptionHandler {
 
                 HttpStatus forbidden = HttpStatus.FORBIDDEN;
 
+            String message = ex.getMessage().isBlank() ? "Você não tem permissão para acessar este recurso"
+                    : ex.getMessage();
+
+
                 ProblemDetails problemDetails = getProblemDetails(forbidden,
-                                "Você não tem permissão para acessar este recurso")
+                                message)
                                 .build();
 
                 return ResponseEntity.status(forbidden).body(problemDetails);
@@ -119,7 +123,7 @@ public class GlobalHandleExceptions extends ResponseEntityExceptionHandler {
         @ExceptionHandler(NotFoundException.class)
         public ResponseEntity<?> handleNotFoundException(NotFoundException ex) {
 
-                HttpStatus notFound = HttpStatus.BAD_REQUEST;
+                HttpStatus notFound = HttpStatus.NOT_FOUND;
 
                 ProblemDetails problemDetails = getProblemDetails(notFound, ex.getMessage())
                                 .build();
