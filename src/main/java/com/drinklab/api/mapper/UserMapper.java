@@ -19,7 +19,7 @@ public interface UserMapper {
     UserResponseDto toDto(UserEntity user);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void copyUserProperties(UserRequestUpdateDto source, @MappingTarget UserEntity user);
+    UserEntity copyUserProperties(UserRequestUpdateDto source, @MappingTarget UserEntity user);
 
     List<UserResponseDto> toListDto(List<UserEntity> users);
 }

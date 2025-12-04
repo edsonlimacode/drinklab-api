@@ -6,6 +6,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -26,7 +29,7 @@ public class UserEntity {
 
     private String password;
 
-    private Boolean active = true;
+    private Boolean active;
 
     @ManyToOne
     private Group group;

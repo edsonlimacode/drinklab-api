@@ -30,7 +30,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtDoFilter, UsernamePasswordAuthenticationFilter.class)//Executa o filtro, antes de tentar verificar se esta autenticado.
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers(HttpMethod.POST, "/users").permitAll()
                                 .requestMatchers(
                                         "/auth/login",
                                         "/teste",

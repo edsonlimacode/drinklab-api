@@ -28,7 +28,7 @@ public class DistributorController {
     @Autowired
     private DistributorMapper mapper;
 
-
+    @CheckAuthority.MasterOrAdmin
     @GetMapping
     public ResponseEntity<Page<DistributorResponseDto>> listAll(Pageable pageable) {
 
@@ -41,7 +41,7 @@ public class DistributorController {
         return ResponseEntity.ok().body(distributorResponseDtos);
     }
 
-    @CheckAuthority.MasterOrAdmin
+    @CheckAuthority.Master
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void create(@Valid @RequestBody DistributorRequestDto distributorRequestDto) {
@@ -51,6 +51,7 @@ public class DistributorController {
         this.distributorService.create(distributor);
     }
 
+    @CheckAuthority.MasterOrAdmin
     @GetMapping("/{id}")
     public ResponseEntity<DistributorResponseDto> findById(@PathVariable Long id) {
 
@@ -62,6 +63,14 @@ public class DistributorController {
 
     }
 
+    @CheckAuthority.Master
+    @PutMapping("/{id}/active")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void active(@PathVariable Long id) {
+        this.distributorService.active(id);
+    }
+
+    @CheckAuthority.Master
     @PutMapping("/{id}/inactive")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void inactive(@PathVariable Long id) {

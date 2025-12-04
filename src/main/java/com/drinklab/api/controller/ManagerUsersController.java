@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
-public class UserController {
+@RequestMapping("/manager/users")
+public class ManagerUsersController {
 
     @Autowired
     private UserService userService;
@@ -30,20 +30,20 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
-    @CheckAuthority.Admin
+    @CheckAuthority.Master
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void createUserToDistributor(@Valid @RequestBody UserRequestDto userRequestDto) {
+    public void create(@Valid @RequestBody UserRequestDto userRequestDto) {
 
         UserEntity user = this.userMapper.toEntity(userRequestDto);
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setActive(true);
 
-        this.userService.createUserToDistributor(user);
+        this.userService.create(user);
     }
 
-    @CheckAuthority.Admin
+    @CheckAuthority.Master
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> listAll() {
 
@@ -55,19 +55,38 @@ public class UserController {
 
     }
 
-    @CheckAuthority.Admin
+    @CheckAuthority.Master
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> update(@PathVariable Long id, @RequestBody UserRequestUpdateDto userRequestUpdateDto) {
 
         UserEntity user = this.userService.findById(id);
 
-        this.userMapper.copyUserProperties(userRequestUpdateDto, user);
+        UserEntity userEntity = this.userMapper.copyUserProperties(userRequestUpdateDto, user);
 
-        UserEntity userUpdated = this.userService.update(id, user);
+        UserEntity userUpdated = this.userService.update(id, userEntity);
 
         UserResponseDto userResponseDto = this.userMapper.toDto(userUpdated);
 
         return ResponseEntity.ok(userResponseDto);
 
+    }
+
+    @CheckAuthority.Master
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDto> findById(@PathVariable Long id){
+
+        UserEntity user = this.userService.findById(id);
+
+        UserResponseDto userResponseDto = this.userMapper.toDto(user);
+
+        return ResponseEntity.ok().body(userResponseDto);
+
+    }
+
+    @CheckAuthority.Master
+    @DeleteMapping("/inactive/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void inactive(@PathVariable Long id){
+        this.userService.inactive(id);
     }
 }

@@ -9,6 +9,8 @@ import lombok.Setter;
 @Setter
 public class DistributorResponseDto {
 
+    private Long id;
+
     private String name;
 
     private String document;

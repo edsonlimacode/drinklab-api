@@ -1,9 +1,11 @@
 package com.drinklab.domain.service;
 
+import com.drinklab.api.exceptions.customExceptions.BadRequestException;
 import com.drinklab.api.exceptions.customExceptions.ForbiddenException;
 import com.drinklab.api.exceptions.customExceptions.NotFoundException;
 import com.drinklab.core.security.JwtUtils;
 import com.drinklab.domain.model.Distributor;
+import com.drinklab.domain.model.UserEntity;
 import com.drinklab.domain.repository.DistributorRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,19 +36,20 @@ public class DistributorService {
     }
 
     @Transactional
-    public void inactive(Long distributorId) {
-        Long userId = this.jwtUtil.getUserId();
-
+    public void active(Long distributorId) {
         Distributor distributor = this.findById(distributorId);
+        distributor.setActive(true);
+    }
 
-        boolean user = distributor.getUsers()
-                .stream().anyMatch(u -> u.getId().equals(userId));
-
-        if (!user) {
-            throw new ForbiddenException(String.format("Você não tem permissão para acessar o recurso de ID: %d", distributorId));
-        }
-
+    @Transactional
+    public void inactive(Long distributorId) {
+        Distributor distributor = this.findById(distributorId);
         distributor.setActive(false);
+    }
+
+    public Distributor getDistributorByUserId(Long userId) {
+        return this.distributorRepository.getDistributorByUserId(userId).orElseThrow(() ->
+                new BadRequestException(String.format("Nenhuma distribuidora encontrada para o usuario de ID: %d", userId)));
     }
 
 }

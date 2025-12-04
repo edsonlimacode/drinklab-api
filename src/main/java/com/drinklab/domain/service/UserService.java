@@ -3,6 +3,8 @@ package com.drinklab.domain.service;
 
 import com.drinklab.api.exceptions.customExceptions.BadRequestException;
 import com.drinklab.api.exceptions.customExceptions.NotFoundException;
+import com.drinklab.core.security.JwtUtils;
+import com.drinklab.domain.model.Distributor;
 import com.drinklab.domain.model.UserEntity;
 import com.drinklab.domain.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -24,19 +26,36 @@ public class UserService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Autowired
+    private DistributorService distributorService;
+
+    @Autowired
     private GroupService groupService;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     public void create(UserEntity user) {
 
         this.groupService.findById(user.getGroup().getId());
 
-        var userExists = this.getUserByEmail(user.getEmail());
-
-        if (userExists) {
-            throw new BadRequestException("Já existe um usuário cadastrado com o email: " + user.getEmail());
-        }
+        checkUserByEmail(user.getEmail());
 
         this.userRepository.save(user);
+    }
+
+    @Transactional
+    public void createUserToDistributor(UserEntity user) {
+
+        Distributor distributor = this.distributorService.getDistributorByUserId(jwtUtils.getUserLoggedId());
+
+        this.groupService.findById(user.getGroup().getId());
+
+        checkUserByEmail(user.getEmail());
+
+        UserEntity userSaved = this.userRepository.save(user);
+
+        distributor.getUsers().add(userSaved);
+
     }
 
     @Transactional
@@ -47,7 +66,6 @@ public class UserService implements UserDetailsService {
         this.findById(id);
 
         return user;
-//        return this.userRepository.save(user);
 
     }
 
@@ -73,5 +91,19 @@ public class UserService implements UserDetailsService {
         UserEntity user = this.findByEmail(email);
 
         return new User(user.getEmail(), user.getPassword(), Collections.singleton(new SimpleGrantedAuthority(user.getGroup().getName())));
+    }
+
+    private void checkUserByEmail(String email) {
+        var userExists = this.getUserByEmail(email);
+
+        if (userExists) {
+            throw new BadRequestException("Já existe um usuário cadastrado com o email: " + email);
+        }
+    }
+
+    @Transactional
+    public void inactive(Long id){
+        UserEntity user = this.findById(id);
+        user.setActive(false);
     }
 }

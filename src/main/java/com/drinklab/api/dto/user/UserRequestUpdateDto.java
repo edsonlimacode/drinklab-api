@@ -19,4 +19,6 @@ public class UserRequestUpdateDto {
     @Email
     private String email;
 
+    private Boolean active;
+
 }
