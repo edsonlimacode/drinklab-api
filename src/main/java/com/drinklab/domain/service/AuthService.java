@@ -39,14 +39,15 @@ public class AuthService {
 
             UserEntity user = this.userService.findByEmail(authenticate.getName());
 
+            this.userService.isActive(user.getId());
+
             UserClaimDto userClaimDto = new UserClaimDto(user.getId(), user.getEmail());
 
             String token = jwtProvider.generateAccessToken(userClaimDto, authorities);
 
             return new JwtTokenDto(credentialsDto.getEmail(), token, "");
 
-        } catch (
-                BadCredentialsException e) {
+        } catch (BadCredentialsException e) {
             throw new BadRequestException("E-mail ou Senha inválidos");
         }
 

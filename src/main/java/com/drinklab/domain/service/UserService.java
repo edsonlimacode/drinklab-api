@@ -3,6 +3,7 @@ package com.drinklab.domain.service;
 
 import com.drinklab.api.exceptions.customExceptions.BadRequestException;
 import com.drinklab.api.exceptions.customExceptions.NotFoundException;
+import com.drinklab.api.exceptions.customExceptions.UnauthorizedException;
 import com.drinklab.core.security.JwtUtils;
 import com.drinklab.domain.model.Distributor;
 import com.drinklab.domain.model.UserEntity;
@@ -105,5 +106,16 @@ public class UserService implements UserDetailsService {
     public void inactive(Long id){
         UserEntity user = this.findById(id);
         user.setActive(false);
+    }
+
+    public boolean isActive(Long id){
+
+        Boolean active = this.findById(id).getActive();
+
+        if(!active){
+            throw new UnauthorizedException("Você não tem autorização para acessar o sistema no momento, entre em contato com os administradores");
+        }
+
+        return true;
     }
 }

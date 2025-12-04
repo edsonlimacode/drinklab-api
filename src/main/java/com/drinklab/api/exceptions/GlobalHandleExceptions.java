@@ -2,6 +2,7 @@ package com.drinklab.api.exceptions;
 
 import com.drinklab.api.exceptions.customExceptions.BadRequestException;
 import com.drinklab.api.exceptions.customExceptions.NotFoundException;
+import com.drinklab.api.exceptions.customExceptions.UnauthorizedException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,18 @@ public class GlobalHandleExceptions extends ResponseEntityExceptionHandler {
         public ResponseEntity<?> handleBadRequestException(BadRequestException ex) {
 
                 HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+
+                ProblemDetails problemDetails = getProblemDetails(badRequest, ex.getMessage())
+                                .build();
+
+                return ResponseEntity.badRequest().body(problemDetails);
+
+        }
+
+        @ExceptionHandler(UnauthorizedException.class)
+        public ResponseEntity<?> handleBadRequestException(UnauthorizedException ex) {
+
+                HttpStatus badRequest = HttpStatus.UNAUTHORIZED;
 
                 ProblemDetails problemDetails = getProblemDetails(badRequest, ex.getMessage())
                                 .build();
