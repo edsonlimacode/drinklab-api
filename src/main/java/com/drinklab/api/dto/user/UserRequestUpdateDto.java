@@ -21,4 +21,5 @@ public class UserRequestUpdateDto {
 
     private Boolean active;
 
+    private Long groupId;
 }

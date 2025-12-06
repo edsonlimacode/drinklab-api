@@ -1,11 +1,8 @@
 package com.drinklab.domain.service;
 
 import com.drinklab.api.exceptions.customExceptions.BadRequestException;
-import com.drinklab.api.exceptions.customExceptions.ForbiddenException;
 import com.drinklab.api.exceptions.customExceptions.NotFoundException;
-import com.drinklab.core.security.JwtUtils;
 import com.drinklab.domain.model.Distributor;
-import com.drinklab.domain.model.UserEntity;
 import com.drinklab.domain.repository.DistributorRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +16,6 @@ public class DistributorService {
     @Autowired
     private DistributorRepository distributorRepository;
 
-    @Autowired
-    private JwtUtils jwtUtil;
-
     public Page<Distributor> findAll(Pageable pageable) {
         return this.distributorRepository.findAll(pageable);
     }
@@ -31,8 +25,8 @@ public class DistributorService {
     }
 
     public Distributor findById(Long id) {
-        return this.distributorRepository.findById(id).orElseThrow(() ->
-                new NotFoundException(String.format("Recurso de id: %d não foi encontrado", id)));
+        return this.distributorRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Distribuidora de id: %d não foi encontrado", id)));
     }
 
     @Transactional
@@ -48,8 +42,8 @@ public class DistributorService {
     }
 
     public Distributor getDistributorByUserId(Long userId) {
-        return this.distributorRepository.getDistributorByUserId(userId).orElseThrow(() ->
-                new BadRequestException(String.format("Nenhuma distribuidora encontrada para o usuario de ID: %d", userId)));
+        return this.distributorRepository.getDistributorByUserId(userId).orElseThrow(() -> new BadRequestException(
+                String.format("Nenhuma distribuidora encontrada para o usuario de ID: %d", userId)));
     }
 
 }

@@ -1,14 +1,14 @@
 package com.drinklab.api.mapper;
 
-
 import com.drinklab.api.dto.distributor.DistributorRequestDto;
 import com.drinklab.api.dto.distributor.DistributorResponseDto;
 import com.drinklab.domain.model.Distributor;
 import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface DistributorMapper {
 
     Distributor toEntity(DistributorRequestDto distributorRequestDto);

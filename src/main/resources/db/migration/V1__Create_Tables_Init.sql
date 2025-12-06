@@ -49,7 +49,7 @@ CREATE TABLE distributor_users (
     distributor_id BIGINT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (distributor_id) REFERENCES distributors(id),
-    PRIMARY KEY (distributor_id)
+    PRIMARY KEY (user_id)
 );
 
 CREATE TABLE distributor_payments (
@@ -57,7 +57,7 @@ CREATE TABLE distributor_payments (
     payment_method_id BIGINT NOT NULL,
     FOREIGN KEY (distributor_id) REFERENCES distributors(id),
     FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id),
-    PRIMARY KEY (distributor_id)
+    PRIMARY KEY (payment_method_id)
 );
 
 --Armazem de estoque

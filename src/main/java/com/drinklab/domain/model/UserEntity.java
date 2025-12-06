@@ -6,7 +6,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.OffsetDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,6 +32,9 @@ public class UserEntity {
 
     @ManyToOne
     private Group group;
+
+    @ManyToMany(mappedBy = "users")
+    private List<Distributor> distributors;
 
     @CreationTimestamp
     @Column(name = "created_at")

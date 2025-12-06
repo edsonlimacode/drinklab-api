@@ -1,5 +1,7 @@
 package com.drinklab;
 
+import java.util.List;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -7,7 +9,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class DrinklabApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(DrinklabApplication.class, args);
+
     }
 
 }

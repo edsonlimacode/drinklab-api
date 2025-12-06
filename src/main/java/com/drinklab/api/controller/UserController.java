@@ -6,7 +6,9 @@ import com.drinklab.api.dto.user.UserRequestUpdateDto;
 import com.drinklab.api.dto.user.UserResponseDto;
 import com.drinklab.api.mapper.UserMapper;
 import com.drinklab.core.security.CheckAuthority;
+import com.drinklab.domain.model.Group;
 import com.drinklab.domain.model.UserEntity;
+import com.drinklab.domain.service.GroupService;
 import com.drinklab.domain.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,19 +30,22 @@ public class UserController {
     private UserMapper userMapper;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private GroupService groupService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @CheckAuthority.Admin
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void createUserToDistributor(@Valid @RequestBody UserRequestDto userRequestDto) {
+    public void create(@Valid @RequestBody UserRequestDto userRequestDto) {
 
         UserEntity user = this.userMapper.toEntity(userRequestDto);
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setActive(true);
 
-        this.userService.createUserToDistributor(user);
+        this.userService.create(user);
     }
 
     @CheckAuthority.Admin
@@ -61,13 +66,28 @@ public class UserController {
 
         UserEntity user = this.userService.findById(id);
 
-        this.userMapper.copyUserProperties(userRequestUpdateDto, user);
+        if(userRequestUpdateDto.getGroupId() != null){
+            Group group = this.groupService.findById(userRequestUpdateDto.getGroupId());
+            user.setGroup(group);
+        }
 
-        UserEntity userUpdated = this.userService.update(id, user);
+        UserEntity userEntity = this.userMapper.copyUserProperties(userRequestUpdateDto, user);
+
+        UserEntity userUpdated = this.userService.update(userEntity);
 
         UserResponseDto userResponseDto = this.userMapper.toDto(userUpdated);
 
         return ResponseEntity.ok(userResponseDto);
 
+    }
+
+    @CheckAuthority.Admin
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDto> findUserWithDistributorAttached(@PathVariable Long id){
+        UserEntity userByDistributor = this.userService.findUserByDistributor(id);
+
+        UserResponseDto userResponseDto = this.userMapper.toDto(userByDistributor);
+
+        return ResponseEntity.ok(userResponseDto);
     }
 }

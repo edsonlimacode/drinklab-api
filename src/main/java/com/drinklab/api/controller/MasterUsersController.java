@@ -7,7 +7,7 @@ import com.drinklab.api.dto.user.UserResponseDto;
 import com.drinklab.api.mapper.UserMapper;
 import com.drinklab.core.security.CheckAuthority;
 import com.drinklab.domain.model.UserEntity;
-import com.drinklab.domain.service.UserService;
+import com.drinklab.domain.service.MasterUsersService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,10 +19,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/manager/users")
-public class ManagerUsersController {
+public class MasterUsersController {
 
     @Autowired
-    private UserService userService;
+    private MasterUsersService masterUsersService;
 
     @Autowired
     private UserMapper userMapper;
@@ -40,14 +40,14 @@ public class ManagerUsersController {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setActive(true);
 
-        this.userService.create(user);
+        this.masterUsersService.create(user);
     }
 
     @CheckAuthority.Master
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> listAll() {
 
-        List<UserEntity> users = this.userService.findAll();
+        List<UserEntity> users = this.masterUsersService.findAll();
 
         List<UserResponseDto> userListDto = this.userMapper.toListDto(users);
 
@@ -59,11 +59,11 @@ public class ManagerUsersController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> update(@PathVariable Long id, @RequestBody UserRequestUpdateDto userRequestUpdateDto) {
 
-        UserEntity user = this.userService.findById(id);
+        UserEntity user = this.masterUsersService.findById(id);
 
         UserEntity userEntity = this.userMapper.copyUserProperties(userRequestUpdateDto, user);
 
-        UserEntity userUpdated = this.userService.update(id, userEntity);
+        UserEntity userUpdated = this.masterUsersService.update(userEntity);
 
         UserResponseDto userResponseDto = this.userMapper.toDto(userUpdated);
 
@@ -75,7 +75,7 @@ public class ManagerUsersController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> findById(@PathVariable Long id){
 
-        UserEntity user = this.userService.findById(id);
+        UserEntity user = this.masterUsersService.findById(id);
 
         UserResponseDto userResponseDto = this.userMapper.toDto(user);
 
@@ -87,6 +87,13 @@ public class ManagerUsersController {
     @DeleteMapping("/inactive/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void inactive(@PathVariable Long id){
-        this.userService.inactive(id);
+        this.masterUsersService.inactive(id);
+    }
+
+    @CheckAuthority.Master
+    @PutMapping("/active/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void active(@PathVariable Long id){
+        this.masterUsersService.active(id);
     }
 }
