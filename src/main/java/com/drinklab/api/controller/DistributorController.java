@@ -1,23 +1,30 @@
 package com.drinklab.api.controller;
 
+import java.util.List;
 
-import com.drinklab.api.dto.distributor.DistributorRequestDto;
-import com.drinklab.api.dto.distributor.DistributorResponseDto;
-import com.drinklab.api.mapper.DistributorMapper;
-import com.drinklab.core.security.CheckAuthority;
-import com.drinklab.core.security.JwtUtils;
-import com.drinklab.domain.model.Distributor;
-import com.drinklab.domain.service.DistributorService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.drinklab.api.dto.distributor.DistributorRequestDto;
+import com.drinklab.api.dto.distributor.DistributorResponseDto;
+import com.drinklab.api.mapper.DistributorMapper;
+import com.drinklab.core.security.CheckAuthority;
+import com.drinklab.domain.model.Distributor;
+import com.drinklab.domain.service.DistributorService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("distributors")
@@ -29,11 +36,6 @@ public class DistributorController {
     @Autowired
     private DistributorMapper mapper;
 
-    @Autowired
-    private JwtUtils jwtUtils;
-
-
-    @CheckAuthority.Master
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void create(@Valid @RequestBody DistributorRequestDto distributorRequestDto) {
@@ -51,7 +53,8 @@ public class DistributorController {
 
         List<DistributorResponseDto> distributorResponseDtoList = this.mapper.toListDto(distributorPage.getContent());
 
-        var distributorResponseDtos = new PageImpl<>(distributorResponseDtoList, pageable, distributorPage.getTotalElements());
+        var distributorResponseDtos = new PageImpl<>(distributorResponseDtoList, pageable,
+                distributorPage.getTotalElements());
 
         return ResponseEntity.ok().body(distributorResponseDtos);
     }
@@ -59,7 +62,8 @@ public class DistributorController {
     @CheckAuthority.Admin
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<DistributorResponseDto> update(@PathVariable Long id, @Valid @RequestBody DistributorRequestDto distributorRequestDto) {
+    public ResponseEntity<DistributorResponseDto> update(@PathVariable Long id,
+            @Valid @RequestBody DistributorRequestDto distributorRequestDto) {
 
         Distributor distributor = this.distributorService.findById(id);
 
