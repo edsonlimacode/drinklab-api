@@ -17,6 +17,6 @@ public interface DistributorRepository extends JpaRepository<Distributor, Long> 
     Optional<Distributor> getDistributorByUserIdAndDistributorId(Long userId);
 
     @Query("FROM Distributor r join r.users u where u.id = :userId")
-    Page<Distributor> getAllByUserId(Long userId, Pageable pageable);
+    Page<Distributor> findAll(Long userId, Pageable pageable);
 
 }

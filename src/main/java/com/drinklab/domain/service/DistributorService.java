@@ -20,12 +20,14 @@ public class DistributorService {
     @Autowired
     private JwtUtils jwtUtils;
 
-    public Page<Distributor> getAllByUserId(Pageable pageable) {
-        return this.distributorRepository.getAllByUserId(jwtUtils.getUserLoggedId(), pageable);
-    }
-
     public Page<Distributor> findAll(Pageable pageable) {
-        return this.distributorRepository.findAll(pageable);
+
+        if(jwtUtils.isMaster()) {
+            return this.distributorRepository.findAll(pageable);
+        }
+
+        return this.distributorRepository.findAll(jwtUtils.getUserLoggedId(), pageable);
+
     }
 
     public Distributor update(Distributor distributor) {
@@ -37,8 +39,15 @@ public class DistributorService {
     }
 
     public Distributor findById(Long id) {
-        return this.distributorRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Distribuidora de id: %d não foi encontrado", id)));
+
+        if(jwtUtils.isMaster()) {
+            return this.distributorRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException(String.format("Distribuidora de id: %d não foi encontrado", id)));
+
+        }
+
+        return this.distributorRepository.getDistributorByUserIdAndDistributorId(id, jwtUtils.getUserLoggedId())
+                .orElseThrow(() -> new BadRequestException(String.format("Nenhuma distribuidora de ID: %d foi encontrada",id)));
     }
 
     @Transactional
@@ -51,11 +60,6 @@ public class DistributorService {
     public void inactive(Long distributorId) {
         Distributor distributor = this.findById(distributorId);
         distributor.setActive(false);
-    }
-
-    public Distributor getDistributorByUserIdAndDistributorId(Long distributorId, Long userId) {
-        return this.distributorRepository.getDistributorByUserIdAndDistributorId(distributorId, userId).orElseThrow(() -> new BadRequestException(
-                String.format("Nenhuma distribuidora de ID: %d foi encontrada",distributorId)));
     }
 
     public Distributor getDistributorByUserId(Long userLoggedId) {

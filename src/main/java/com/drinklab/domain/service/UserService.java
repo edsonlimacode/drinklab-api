@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -46,7 +45,7 @@ public class UserService implements UserDetailsService {
 
         checkUserByEmail(user.getEmail());
 
-        if (isMaster()) {
+        if (jwtUtils.isMaster()) {
             this.userRepository.save(user);
         } else {
 
@@ -84,7 +83,7 @@ public class UserService implements UserDetailsService {
     }
 
     public UserEntity findById(Long id) {
-        if (isMaster()) {
+        if (jwtUtils.isMaster()) {
             return this.userRepository.findById(id).orElseThrow(
                     () -> new NotFoundException(String.format("Usuário com id %d, não foi encontrado", id)));
         }
@@ -101,25 +100,13 @@ public class UserService implements UserDetailsService {
 
     public List<UserEntity> findAll() {
 
-        if (isMaster()) {
+        if (jwtUtils.isMaster()) {
             return this.userRepository.findAll();
         }
 
         Distributor distributor = distributorService.getDistributorByUserId(jwtUtils.getUserLoggedId());
 
-        return userRepository.findAll().stream()
-                .filter(u -> !Objects.equals(u.getGroup().getName(), groupProperties.getMaster()))
-                .filter(u -> u.getDistributors().contains(distributor))
-                .toList();
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
-        UserEntity user = this.findByEmail(email);
-
-        return new User(user.getEmail(), user.getPassword(),
-                Collections.singleton(new SimpleGrantedAuthority(user.getGroup().getName())));
+        return distributor.getUsers().stream().toList();
     }
 
     @Transactional
@@ -142,9 +129,13 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    private boolean isMaster() {
-        return jwtUtils.getUserAuthorities().stream().anyMatch(
-                u -> u.getAuthority().equals(groupProperties.getMaster()));
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
+        UserEntity user = this.findByEmail(email);
+
+        return new User(user.getEmail(), user.getPassword(),
+                Collections.singleton(new SimpleGrantedAuthority(user.getGroup().getName())));
     }
 
 }

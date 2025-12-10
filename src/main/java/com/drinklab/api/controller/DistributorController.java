@@ -43,22 +43,9 @@ public class DistributorController {
         this.distributorService.create(distributor);
     }
 
-    @CheckAuthority.Admin
+    @CheckAuthority.MasterOrAdmin
     @GetMapping
-    public ResponseEntity<Page<DistributorResponseDto>> listAllByUserLogged(Pageable pageable) {
-
-        Page<Distributor> distributorPage = this.distributorService.getAllByUserId(pageable);
-
-        List<DistributorResponseDto> distributorResponseDtoList = this.mapper.toListDto(distributorPage.getContent());
-
-        var distributorResponseDtos = new PageImpl<>(distributorResponseDtoList, pageable, distributorPage.getTotalElements());
-
-        return ResponseEntity.ok().body(distributorResponseDtos);
-    }
-
-    @CheckAuthority.Master
-    @GetMapping("/master")
-    public ResponseEntity<Page<DistributorResponseDto>> listAll(Pageable pageable) {
+    public ResponseEntity<Page<DistributorResponseDto>> findAll(Pageable pageable) {
 
         Page<Distributor> distributorPage = this.distributorService.findAll(pageable);
 
@@ -69,13 +56,12 @@ public class DistributorController {
         return ResponseEntity.ok().body(distributorResponseDtos);
     }
 
-
     @CheckAuthority.Admin
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<DistributorResponseDto> update(@PathVariable Long id, @Valid @RequestBody DistributorRequestDto distributorRequestDto) {
 
-        Distributor distributor = this.distributorService.getDistributorByUserIdAndDistributorId(id, jwtUtils.getUserLoggedId());
+        Distributor distributor = this.distributorService.findById(id);
 
         this.mapper.copyProperties(distributorRequestDto, distributor);
 
@@ -84,23 +70,11 @@ public class DistributorController {
         return ResponseEntity.ok().body(this.mapper.toDto(distributorUpdated));
     }
 
-    @CheckAuthority.Master
-    @GetMapping("/{id}/master")
+    @CheckAuthority.MasterOrAdmin
+    @GetMapping("/{id}")
     public ResponseEntity<DistributorResponseDto> findById(@PathVariable Long id) {
 
         Distributor distributor = this.distributorService.findById(id);
-
-        DistributorResponseDto distributorResponseDto = this.mapper.toDto(distributor);
-
-        return ResponseEntity.ok(distributorResponseDto);
-
-    }
-
-    @CheckAuthority.Admin
-    @GetMapping("/{id}")
-    public ResponseEntity<DistributorResponseDto> findByUserId(@PathVariable Long id) {
-
-        Distributor distributor = this.distributorService.getDistributorByUserIdAndDistributorId(id, jwtUtils.getUserLoggedId());
 
         DistributorResponseDto distributorResponseDto = this.mapper.toDto(distributor);
 
