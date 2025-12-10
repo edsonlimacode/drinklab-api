@@ -3,6 +3,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/drinklab
     username: postgres
     password: 12345
+  mvc:
+    throw-exception-if-no-handler-found: true
   jpa:
     hibernate:
       ddl-auto: none
@@ -21,3 +23,6 @@ drinklab:
     group:
       master: MASTER
       admin: ADMIN
+#logging:
+#  level:
+#    root: "debug"

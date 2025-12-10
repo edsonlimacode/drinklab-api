@@ -1,6 +1,5 @@
 package com.drinklab.api.controller;
 
-
 import com.drinklab.api.dto.user.UserRequestDto;
 import com.drinklab.api.dto.user.UserRequestUpdateDto;
 import com.drinklab.api.dto.user.UserResponseDto;
@@ -35,7 +34,7 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @CheckAuthority.Admin
+    @CheckAuthority.MasterOrAdmin
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void create(@Valid @RequestBody UserRequestDto userRequestDto) {
@@ -48,7 +47,7 @@ public class UserController {
         this.userService.create(user);
     }
 
-    @CheckAuthority.Admin
+    @CheckAuthority.MasterOrAdmin
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> listAll() {
 
@@ -60,14 +59,17 @@ public class UserController {
 
     }
 
-    @CheckAuthority.Admin
+    @CheckAuthority.MasterOrAdmin
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> update(@PathVariable Long id, @RequestBody UserRequestUpdateDto userRequestUpdateDto) {
+    public ResponseEntity<UserResponseDto> update(@PathVariable Long id,
+            @RequestBody UserRequestUpdateDto userRequestUpdateDto) {
 
         UserEntity user = this.userService.findById(id);
 
-        if(userRequestUpdateDto.getGroupId() != null){
-            Group group = this.groupService.findById(userRequestUpdateDto.getGroupId());
+        Long groupId = userRequestUpdateDto.getGroupId();
+
+        if (groupId != null) {
+            Group group = this.groupService.findById(groupId);
             user.setGroup(group);
         }
 
@@ -81,13 +83,28 @@ public class UserController {
 
     }
 
-    @CheckAuthority.Admin
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> findUserWithDistributorAttached(@PathVariable Long id){
-        UserEntity userByDistributor = this.userService.findUserByDistributor(id);
+    @CheckAuthority.MasterOrAdmin
+    @GetMapping("{id}")
+    public ResponseEntity<UserResponseDto> findById(@PathVariable Long id) {
+
+        UserEntity userByDistributor = this.userService.findById(id);
 
         UserResponseDto userResponseDto = this.userMapper.toDto(userByDistributor);
 
         return ResponseEntity.ok(userResponseDto);
+    }
+
+    @CheckAuthority.MasterOrAdmin
+    @DeleteMapping("{id}/inactive")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void inactive(@PathVariable Long id) {
+        this.userService.inactive(id);
+    }
+
+    @CheckAuthority.MasterOrAdmin
+    @PutMapping("{id}/active")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void active(@PathVariable Long id) {
+        this.userService.active(id);
     }
 }

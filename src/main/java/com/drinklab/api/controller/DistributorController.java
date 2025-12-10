@@ -5,6 +5,7 @@ import com.drinklab.api.dto.distributor.DistributorRequestDto;
 import com.drinklab.api.dto.distributor.DistributorResponseDto;
 import com.drinklab.api.mapper.DistributorMapper;
 import com.drinklab.core.security.CheckAuthority;
+import com.drinklab.core.security.JwtUtils;
 import com.drinklab.domain.model.Distributor;
 import com.drinklab.domain.service.DistributorService;
 import jakarta.validation.Valid;
@@ -28,18 +29,9 @@ public class DistributorController {
     @Autowired
     private DistributorMapper mapper;
 
-    @CheckAuthority.MasterOrAdmin
-    @GetMapping
-    public ResponseEntity<Page<DistributorResponseDto>> listAll(Pageable pageable) {
+    @Autowired
+    private JwtUtils jwtUtils;
 
-        Page<Distributor> distributorPage = this.distributorService.findAll(pageable);
-
-        List<DistributorResponseDto> distributorResponseDtoList = this.mapper.toListDto(distributorPage.getContent());
-
-        var distributorResponseDtos = new PageImpl<>(distributorResponseDtoList, pageable, distributorPage.getTotalElements());
-
-        return ResponseEntity.ok().body(distributorResponseDtos);
-    }
 
     @CheckAuthority.Master
     @PostMapping
@@ -51,11 +43,64 @@ public class DistributorController {
         this.distributorService.create(distributor);
     }
 
-    @CheckAuthority.MasterOrAdmin
-    @GetMapping("/{id}")
+    @CheckAuthority.Admin
+    @GetMapping
+    public ResponseEntity<Page<DistributorResponseDto>> listAllByUserLogged(Pageable pageable) {
+
+        Page<Distributor> distributorPage = this.distributorService.getAllByUserId(pageable);
+
+        List<DistributorResponseDto> distributorResponseDtoList = this.mapper.toListDto(distributorPage.getContent());
+
+        var distributorResponseDtos = new PageImpl<>(distributorResponseDtoList, pageable, distributorPage.getTotalElements());
+
+        return ResponseEntity.ok().body(distributorResponseDtos);
+    }
+
+    @CheckAuthority.Master
+    @GetMapping("/master")
+    public ResponseEntity<Page<DistributorResponseDto>> listAll(Pageable pageable) {
+
+        Page<Distributor> distributorPage = this.distributorService.findAll(pageable);
+
+        List<DistributorResponseDto> distributorResponseDtoList = this.mapper.toListDto(distributorPage.getContent());
+
+        var distributorResponseDtos = new PageImpl<>(distributorResponseDtoList, pageable, distributorPage.getTotalElements());
+
+        return ResponseEntity.ok().body(distributorResponseDtos);
+    }
+
+
+    @CheckAuthority.Admin
+    @PutMapping("{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<DistributorResponseDto> update(@PathVariable Long id, @Valid @RequestBody DistributorRequestDto distributorRequestDto) {
+
+        Distributor distributor = this.distributorService.getDistributorByUserIdAndDistributorId(id, jwtUtils.getUserLoggedId());
+
+        this.mapper.copyProperties(distributorRequestDto, distributor);
+
+        Distributor distributorUpdated = this.distributorService.update(distributor);
+
+        return ResponseEntity.ok().body(this.mapper.toDto(distributorUpdated));
+    }
+
+    @CheckAuthority.Master
+    @GetMapping("/{id}/master")
     public ResponseEntity<DistributorResponseDto> findById(@PathVariable Long id) {
 
         Distributor distributor = this.distributorService.findById(id);
+
+        DistributorResponseDto distributorResponseDto = this.mapper.toDto(distributor);
+
+        return ResponseEntity.ok(distributorResponseDto);
+
+    }
+
+    @CheckAuthority.Admin
+    @GetMapping("/{id}")
+    public ResponseEntity<DistributorResponseDto> findByUserId(@PathVariable Long id) {
+
+        Distributor distributor = this.distributorService.getDistributorByUserIdAndDistributorId(id, jwtUtils.getUserLoggedId());
 
         DistributorResponseDto distributorResponseDto = this.mapper.toDto(distributor);
 

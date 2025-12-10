@@ -1,10 +1,8 @@
 package com.drinklab.domain.service;
 
-
 import com.drinklab.api.exceptions.customExceptions.BadRequestException;
 import com.drinklab.api.exceptions.customExceptions.ForbiddenException;
 import com.drinklab.api.exceptions.customExceptions.NotFoundException;
-import com.drinklab.api.exceptions.customExceptions.UnauthorizedException;
 import com.drinklab.core.properties.GroupProperties;
 import com.drinklab.core.security.JwtUtils;
 import com.drinklab.domain.model.Distributor;
@@ -23,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -45,19 +44,25 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void create(UserEntity user) {
 
-        Distributor distributor = this.distributorService.getDistributorByUserId(jwtUtils.getUserLoggedId());
-
-        Group group = this.groupService.findById(user.getGroup().getId());
-
-        if(group.getName().equals(groupProperties.getMaster())){
-            throw new ForbiddenException(String.format("Você não pode adicionar o grupo: %s, um usuário", group.getName()));
-        }
-
         checkUserByEmail(user.getEmail());
 
-        UserEntity userSaved = this.userRepository.save(user);
+        if (isMaster()) {
+            this.userRepository.save(user);
+        } else {
 
-        distributor.getUsers().add(userSaved);
+            Distributor distributor = this.distributorService.getDistributorByUserId(jwtUtils.getUserLoggedId());
+
+            Group group = this.groupService.findById(user.getGroup().getId());
+
+            if (group.getName().equals(groupProperties.getMaster())) {
+                throw new ForbiddenException(
+                        String.format("Você não pode adicionar o grupo: %s, a um usuário", group.getName()));
+            }
+
+            UserEntity userSaved = this.userRepository.save(user);
+
+            distributor.getUsers().add(userSaved);
+        }
 
     }
 
@@ -65,46 +70,40 @@ public class UserService implements UserDetailsService {
 
         String groupName = user.getGroup().getName();
 
-        List<UserEntity> userEntityList = this.findAll();
-
-        boolean isDistributorUser = userEntityList.contains(user);
-
-        if(!isDistributorUser){
-            throw new ForbiddenException("Você não tem permissão para atualizar este usuario");
-        }
-
-        if(groupName.equals(groupProperties.getMaster())){
-            throw new ForbiddenException(String.format("Você não tem permissão para adicionar o grupo: %s, a um usuário", groupName));
+        if (groupName.equals(groupProperties.getMaster())) {
+            throw new ForbiddenException(
+                    String.format("Você não tem permissão para adicionar o grupo: %s, a um usuário", groupName));
         }
 
         return this.userRepository.save(user);
     }
 
-    public boolean checkUserByEmailExists(String email) {
-        return userRepository.userExistsByEmail(email);
-    }
-
     public UserEntity findByEmail(String email) {
-        return this.userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(String.format("Usuário com email %s, não foi encontrado", email)));
+        return this.userRepository.findByEmail(email).orElseThrow(
+                () -> new NotFoundException(String.format("Usuário com email %s, não foi encontrado", email)));
     }
 
     public UserEntity findById(Long id) {
-        return this.userRepository.findById(id) .orElseThrow(() -> new NotFoundException(String.format("Usuário com id %d, não foi encontrado", id)));
-    }
+        if (isMaster()) {
+            return this.userRepository.findById(id).orElseThrow(
+                    () -> new NotFoundException(String.format("Usuário com id %d, não foi encontrado", id)));
+        }
 
-    public UserEntity findUserByDistributor(Long id){
+        Optional<UserEntity> user = this.findAll().stream()
+                .filter(u -> u.getId().equals(id)).findFirst();
 
-        boolean isUserAttachedToDistributor = this.findAll().stream().anyMatch(u -> u.getId().equals(id));
-
-        if(!isUserAttachedToDistributor){
+        if (user.isEmpty()) {
             throw new BadRequestException("Este usuário não pertence a sua distribuidora");
         }
 
-        return this.findById(id);
-
+        return user.get();
     }
 
     public List<UserEntity> findAll() {
+
+        if (isMaster()) {
+            return this.userRepository.findAll();
+        }
 
         Distributor distributor = distributorService.getDistributorByUserId(jwtUtils.getUserLoggedId());
 
@@ -114,30 +113,38 @@ public class UserService implements UserDetailsService {
                 .toList();
     }
 
-    public boolean isActive(Long id){
-
-        Boolean active = this.findById(id).getActive();
-
-        if(!active){
-            throw new UnauthorizedException("Você não tem autorização para acessar o sistema no momento, entre em contato com os administradores");
-        }
-
-        return true;
-    }
-
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
         UserEntity user = this.findByEmail(email);
 
-        return new User(user.getEmail(), user.getPassword(), Collections.singleton(new SimpleGrantedAuthority(user.getGroup().getName())));
+        return new User(user.getEmail(), user.getPassword(),
+                Collections.singleton(new SimpleGrantedAuthority(user.getGroup().getName())));
+    }
+
+    @Transactional
+    public void active(Long id) {
+        UserEntity user = this.findById(id);
+        user.setActive(true);
+    }
+
+    @Transactional
+    public void inactive(Long id) {
+        UserEntity user = this.findById(id);
+        user.setActive(false);
     }
 
     private void checkUserByEmail(String email) {
-        var userExists = this.checkUserByEmailExists(email);
+        var userExists = userRepository.userExistsByEmail(email);
 
         if (userExists) {
             throw new BadRequestException("Já existe um usuário cadastrado com o email: " + email);
         }
     }
+
+    private boolean isMaster() {
+        return jwtUtils.getUserAuthorities().stream().anyMatch(
+                u -> u.getAuthority().equals(groupProperties.getMaster()));
+    }
+
 }

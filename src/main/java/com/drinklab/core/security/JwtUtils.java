@@ -1,13 +1,16 @@
 package com.drinklab.core.security;
 
 import com.drinklab.domain.model.UserEntity;
+import com.drinklab.domain.repository.DistributorRepository;
 import com.drinklab.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.Optional;
 
 @Component
@@ -15,6 +18,9 @@ public class JwtUtils {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private DistributorRepository distributorRepository;
 
    private Authentication getAuthentication(){
        return SecurityContextHolder.getContext().getAuthentication();
@@ -27,6 +33,10 @@ public class JwtUtils {
 
        return user.map(UserEntity::getId).orElse(null);
 
+   }
+
+    public Collection<? extends GrantedAuthority> getUserAuthorities(){
+       return this.getAuthentication().getAuthorities();
    }
 
 }

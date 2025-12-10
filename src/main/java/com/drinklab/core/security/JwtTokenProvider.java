@@ -50,7 +50,7 @@ public class JwtTokenProvider {
     public boolean isTokenExpired(String token) {
         DecodedJWT decodedJWT = this.decodedJWT(token);
 
-        return !decodedJWT.getExpiresAt().before(new Date());
+        return decodedJWT.getExpiresAt().before(new Date());
     }
 
     public DecodedJWT decodedJWT(String token) {

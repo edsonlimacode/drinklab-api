@@ -30,13 +30,14 @@ public class JwtDoFilter extends OncePerRequestFilter {
         try {
             String bearerToken = request.getHeader("Authorization");
 
-            if (bearerToken != null && jwtTokenProvider.isTokenExpired(bearerToken.substring("Bearer ".length()))) {
+            if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
 
                 String token = bearerToken.substring("Bearer ".length());
 
-                Authentication authentication = this.jwtTokenProvider.getAuthentication(token);
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                if(!jwtTokenProvider.isTokenExpired(token)){
+                    Authentication authentication = this.jwtTokenProvider.getAuthentication(token);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
 
             filterChain.doFilter(request, response);

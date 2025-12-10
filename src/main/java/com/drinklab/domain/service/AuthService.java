@@ -4,11 +4,13 @@ import com.drinklab.api.dto.auth.CredentialsDto;
 import com.drinklab.api.dto.auth.UserClaimDto;
 import com.drinklab.api.dto.token.JwtTokenDto;
 import com.drinklab.api.exceptions.customExceptions.BadRequestException;
+import com.drinklab.api.exceptions.customExceptions.UnauthorizedException;
 import com.drinklab.core.security.JwtTokenProvider;
 import com.drinklab.domain.model.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,7 +41,9 @@ public class AuthService {
 
             UserEntity user = this.userService.findByEmail(authenticate.getName());
 
-            this.userService.isActive(user.getId());
+            if (!user.getActive()) {
+                throw new UnauthorizedException("Você não tem autorização para acessar o sistema no momento, entre em contato com os administradores");
+            }
 
             UserClaimDto userClaimDto = new UserClaimDto(user.getId(), user.getEmail());
 
@@ -47,7 +51,7 @@ public class AuthService {
 
             return new JwtTokenDto(credentialsDto.getEmail(), token, "");
 
-        } catch (BadCredentialsException e) {
+        } catch (BadCredentialsException | InternalAuthenticationServiceException e) {
             throw new BadRequestException("E-mail ou Senha inválidos");
         }
 

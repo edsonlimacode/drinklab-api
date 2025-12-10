@@ -1,16 +1,16 @@
 CREATE TABLE groups (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(200) UNIQUE NOT NULL
+    name VARCHAR(200)  NOT NULL
 );
 
 CREATE TABLE categories (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL
+    name VARCHAR(50)  NOT NULL
 );
 
 CREATE TABLE payment_methods (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(100) UNIQUE NOT NULL
+    name VARCHAR(100)  NOT NULL
 );
 
 CREATE TABLE users (
@@ -18,7 +18,7 @@ CREATE TABLE users (
     name VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
     nick_name VARCHAR(150) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
+    email VARCHAR(150) NOT NULL,
     active BOOLEAN DEFAULT true,
     group_id BIGINT NOT NULL,
     created_at TIMESTAMP,
@@ -29,7 +29,7 @@ CREATE TABLE users (
 CREATE TABLE distributors (
     id BIGSERIAL PRIMARY KEY NOT NULL,
     name VARCHAR(200) NOT NULL,
-    document VARCHAR (50) UNIQUE NOT NULL,
+    document VARCHAR (50)  NOT NULL,
     street VARCHAR(200) NOT NULL,
     number VARCHAR(20) NOT NULL,
     neighborhood VARCHAR(100) NOT NULL,
@@ -37,8 +37,8 @@ CREATE TABLE distributors (
     city VARCHAR(100) NOT NULL,
     state VARCHAR(50) NOT NULL,
     zip_code VARCHAR(20) NOT NULL,
-    contact VARCHAR(20) UNIQUE NOT NULL,
-    email VARCHAR(120) UNIQUE,
+    contact VARCHAR(20)  NOT NULL,
+    email VARCHAR(120) ,
     active BOOLEAN DEFAULT true,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
@@ -86,7 +86,7 @@ CREATE TABLE customers (
 CREATE TABLE suppliers (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(120) NOT NULL,
-    document VARCHAR(18) UNIQUE,
+    document VARCHAR(18) ,
     phone VARCHAR(20),
     email VARCHAR(120),
     distributor_id BIGINT NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE suppliers (
 
 CREATE TABLE products (
     id BIGSERIAL PRIMARY KEY,
-    sku VARCHAR(50) UNIQUE,
+    sku VARCHAR(50) ,
     name VARCHAR(255) NOT NULL,
     brand VARCHAR(100),
     unit VARCHAR(20) NOT NULL,
@@ -180,8 +180,7 @@ CREATE TABLE stocks (
     warehouse_id BIGINT NOT NULL,
     FOREIGN KEY (product_id) REFERENCES products(id),
     FOREIGN KEY (warehouse_id) REFERENCES warehouse(id),
-    FOREIGN KEY (distributor_id) REFERENCES distributors(id),
-    UNIQUE(product_id, warehouse_id)
+    FOREIGN KEY (distributor_id) REFERENCES distributors(id)
 );
 
 -- Movimentações de estoque

@@ -1,6 +1,7 @@
 package com.drinklab.api.exceptions;
 
 import com.drinklab.api.exceptions.customExceptions.BadRequestException;
+import com.drinklab.api.exceptions.customExceptions.ForbiddenException;
 import com.drinklab.api.exceptions.customExceptions.NotFoundException;
 import com.drinklab.api.exceptions.customExceptions.UnauthorizedException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -14,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -72,33 +73,39 @@ public class GlobalHandleExceptions extends ResponseEntityExceptionHandler {
 
         }
 
-        @ExceptionHandler(DataIntegrityViolationException.class)
-        public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-
-                HttpStatus badRequest = HttpStatus.BAD_REQUEST;
-
-                Throwable rootCause = ex.getRootCause();
-
-                ProblemDetails problemDetails = getProblemDetails(badRequest,
-                                rootCause.getMessage().substring("ERRO: ".length()))
-                                .userMessage("Verifique os campos e tente novamente")
-                                .build();
-
-                return ResponseEntity.badRequest().body(problemDetails);
-
-        }
-
-        @ExceptionHandler(AuthorizationDeniedException.class)
-        public ResponseEntity<?> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex) {
 
                 HttpStatus forbidden = HttpStatus.FORBIDDEN;
 
-            String message = ex.getMessage().isBlank() ? "Você não tem permissão para acessar este recurso"
-                    : ex.getMessage();
+                ProblemDetails problemDetails = getProblemDetails(forbidden,
+                                "Você não tem permissão para acessar este recurso")
+                                .build();
 
+                return ResponseEntity.status(forbidden).body(problemDetails);
+
+        }
+
+        @ExceptionHandler(ForbiddenException.class)
+        public ResponseEntity<?> handleForbiddenException(ForbiddenException ex) {
+
+                HttpStatus forbidden = HttpStatus.FORBIDDEN;
 
                 ProblemDetails problemDetails = getProblemDetails(forbidden,
-                                message)
+                                ex.getMessage())
+                                .build();
+
+                return ResponseEntity.status(forbidden).body(problemDetails);
+
+        }
+
+        @ExceptionHandler(DataIntegrityViolationException.class)
+        public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+
+                HttpStatus forbidden = HttpStatus.FORBIDDEN;
+
+                ProblemDetails problemDetails = getProblemDetails(forbidden,
+                                ex.getMessage())
                                 .build();
 
                 return ResponseEntity.status(forbidden).body(problemDetails);

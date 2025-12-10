@@ -19,9 +19,9 @@ public class DistributorUserService {
     @Transactional
     public void attach(Long distributorId, Long userId){
 
-        UserEntity user = this.userService.findById(userId);
-
         Distributor distributor = this.distributorService.findById(distributorId);
+
+        UserEntity user = this.userService.findById(userId);
 
         distributor.getUsers().add(user);
 
