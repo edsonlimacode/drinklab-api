@@ -46,7 +46,7 @@ public class DistributorService {
 
         }
 
-        return this.distributorRepository.getDistributorByUserIdAndDistributorId(id, jwtUtils.getUserLoggedId())
+        return this.distributorRepository.getDistributorByUserAndDistributorId(id, jwtUtils.getUserLoggedId())
                 .orElseThrow(() -> new BadRequestException(String.format("Nenhuma distribuidora de ID: %d foi encontrada",id)));
     }
 
@@ -62,8 +62,13 @@ public class DistributorService {
         distributor.setActive(false);
     }
 
+    public Distributor getDistributorByUserAndDistributorId(Long distributorId,Long userId) {
+        return this.distributorRepository.getDistributorByUserAndDistributorId(distributorId,userId).orElseThrow(() ->
+                new BadRequestException(String.format("Usuário de ID: %d, não pertence a distribuidora de Id: %d",userId,distributorId)));
+
+    }
     public Distributor getDistributorByUserId(Long userLoggedId) {
-        return this.distributorRepository.getDistributorByUserIdAndDistributorId(userLoggedId).orElseThrow(() ->
+        return this.distributorRepository.getDistributorByUserId(userLoggedId).orElseThrow(() ->
                 new BadRequestException("Você precisa esta associado a uma distribuidora para efeturar essa ação, entre em contato com o suporte"));
 
     }

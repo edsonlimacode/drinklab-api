@@ -11,10 +11,10 @@ import java.util.Optional;
 public interface DistributorRepository extends JpaRepository<Distributor, Long> {
 
     @Query("FROM Distributor d join d.users u where d.id = :distributorId and u.id = :userId")
-    Optional<Distributor> getDistributorByUserIdAndDistributorId(Long distributorId, Long userId);
+    Optional<Distributor> getDistributorByUserAndDistributorId(Long distributorId, Long userId);
 
     @Query("FROM Distributor d join d.users u where u.id = :userId")
-    Optional<Distributor> getDistributorByUserIdAndDistributorId(Long userId);
+    Optional<Distributor> getDistributorByUserId(Long userId);
 
     @Query("FROM Distributor r join r.users u where u.id = :userId")
     Page<Distributor> findAll(Long userId, Pageable pageable);

@@ -46,9 +46,4 @@ public class Distributor {
                 inverseJoinColumns = @JoinColumn(name = "user_id"))
         private Set<UserEntity> users = new HashSet<>();
 
-        @ManyToMany
-        @JoinTable(name = "distributor_payments",
-                joinColumns = @JoinColumn(name = "distributor_id"),
-                inverseJoinColumns = @JoinColumn(name = "payment_method_id"))
-        private Set<Payment> payments = new HashSet<>();
 }

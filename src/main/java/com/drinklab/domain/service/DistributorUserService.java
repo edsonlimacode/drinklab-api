@@ -34,7 +34,7 @@ public class DistributorUserService {
 
         UserEntity user = this.userService.findById(userId);
 
-        distributorService.getDistributorByUserId(userId);
+        distributorService.getDistributorByUserAndDistributorId(distributorId,userId);
 
         distributor.getUsers().remove(user);
 
